@@ -1,16 +1,18 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from config import Config
+
+
 
 app = Flask(__name__)
-app.config.from_object(Config)
-db = SQLAlchemy(app)
 
 @app.route('/')
 @app.route('/home')
 def home():
-    return 'Hello World'
+    return 'Blog home'
 
+
+from mod_admin import admin
+
+app.register_blueprint(admin)
 
 if __name__ == '__main__':
     app.run()
