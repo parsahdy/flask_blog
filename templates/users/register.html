@@ -1,0 +1,62 @@
+{% extend 'base.html' %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<h1>Register</h1>
+
+<form action="{{ url_for('users.register') }}" method="POST">
+    {% with messages = get_flashed_messages(True) %}
+        {% if messages %}
+        <div class="row">
+            
+            {% for message in messages %}
+            <div class="card {{message[0]}}">
+            <div class="section">
+            <p>{{ message[1] }}</p>
+            </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+    {{ form.hidden_tag() }}
+    username = {{ form.username }} 
+    {% if form.username.errors %}
+        <ul>
+            {% for error in form.username.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <br/>
+    email = {{ form.email }} 
+    {% if form.email.errors %}
+        <ul>
+            {% for error in form.email.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <br/>
+    password = {{ form.password }} 
+    {% if form.password.errors %}
+        <ul>
+            {% for error in form.password.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <br/>
+    confirm_password = {{ form.confirm_password }} 
+    {% if form.confirm_password.errors %}
+        <ul>
+            {% for error in form.confirm_password.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <br/>
+    <input type="submit" value="Register">
+</form>
+{% endblock %}
