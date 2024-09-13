@@ -5,7 +5,7 @@ from . import users
 from .models import User
 from .forms import RegisterForm
 
-@users.route('/register/', methodes=['GET', 'POST'])
+@users.route('/register/', methods=['GET', 'POST'])
 def register():
     form = RegisterForm(request.form)
     if request.method == 'POST':
