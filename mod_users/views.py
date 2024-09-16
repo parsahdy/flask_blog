@@ -1,9 +1,9 @@
 from flask import request, render_template, flash
 from sqlalchemy.exc import IntegrityError
 from app import db
-from . import users
 from .models import User
 from .forms import RegisterForm
+from . import users
 
 @users.route('/register/', methods=['GET', 'POST'])
 def register():
