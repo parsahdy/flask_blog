@@ -1,20 +1,15 @@
 from flask_wtf import FlaskForm
 from wtforms import TextAreaField, StringField
 from wtforms.validators import DataRequired
+from utils.forms import MUltipleCheckboxField
 
 
-class CreatePostForm(FlaskForm):
+class PostForm(FlaskForm):
     title = StringField(validators=[DataRequired()])
     summary = TextAreaField()
     content = TextAreaField(validators=[DataRequired])
     slug = StringField(validators=[DataRequired()])
-
-
-class ModifyPostForm(FlaskForm):
-    title = StringField(validators=[DataRequired()])
-    summary = TextAreaField()
-    content = TextAreaField(validators=[DataRequired])
-    slug = StringField(validators=[DataRequired()])
+    categories = MUltipleCheckboxField(coerce=int)
 
 
 class CategoryForm(FlaskForm):
