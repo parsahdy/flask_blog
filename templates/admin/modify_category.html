@@ -1,0 +1,14 @@
+{% extend 'admin/base.html' %}
+
+{% block tilte %}Modify {{ category.name }}{% endblock %}
+
+{% block page_content %}
+<h1>{{ category.name }}</h1>
+<form action="{{url_for('admin.modify_category', category_id=category.id)}}" method="category">
+    {{ form.hidden_tag() }}
+    Name: {{ form.name }} <br>
+    Slug: {{ form.slug }} <br>
+    description: {{ form.description }} <br>
+    <input type="submit" value="Save">
+</form>
+{% endblock %}

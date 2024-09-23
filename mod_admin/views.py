@@ -3,9 +3,9 @@ from flask import session, render_template, request, abort, flash, redirect, url
 from sqlalchemy.exc import IntegrityError
 
 from app import db
-from mod_blog.forms import CreatePostForm
-from mod_blog.models import Post
-from mod_users.forms import LoginForm
+from mod_blog.forms import CreatePostForm, ModifyPostForm, CategoryForm
+from mod_blog.models import Post, Category
+from mod_users.forms import LoginForm, RegisterForm
 from mod_users.models import User
 
 from mod_admin import admin 
@@ -50,7 +50,46 @@ def logout():
     return redirect(url_for('admin.login'))
 
 
-@admin.route('/posts/new/', meyhods=['GET', 'POST'])
+@admin.route('/users/', methods=['GET'])
+@admin_only_view
+def list_users():
+    users = User.query.order_by(User.id.desc()).all()
+    return render_template('admin/list_users.html', users=users)
+
+
+@admin.route('/users/new/', methods=['GET'])
+@admin_only_view
+def get_create_user():
+    form = RegisterForm()
+    return render_template('admin/create_user.html', form=form)
+
+
+@admin.route('/users/new/', methods=['POST'])
+@admin_only_view
+def post_create_user():
+    form = RegisterForm(request.form)
+    if not form.validate_on_submit():
+        return redirect(url_for('admin.get_create_user'))
+    if form.password.data != form.confirm_password.data:
+        error_msg = 'Password and Confirm_password does not match'
+        form.password.errors.append(error_msg)
+        form.confirm_password.errors.append(error_msg)
+        return redirect(url_for('admin.get_create_user'))
+    new_user = User()
+    new_user.username = form.username.data
+    new_user.email = form.email.data
+    new_user.set_password(form.password.data)
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+        flash('You created your account successfully', 'success')
+    except IntegrityError:
+        db.session.rollback()
+        flash("Email has been taken", "error")
+    return redirect(url_for('admin.get_create_user'))
+
+
+@admin.route('/posts/new/', methods=['GET', 'POST'])
 @admin_only_view
 def create_post():
     form = CreatePostForm(request.form)
@@ -69,4 +108,104 @@ def create_post():
             return redirect(url_for('admin.index'))
         except IntegrityError:
             db.session.rollback()
+            flash('Slug Duplicated')
     return render_template('admin/create_post.html', form=form)
+
+
+@admin.route('/posts/new/', methods=['GET'])
+@admin_only_view
+def list_posts():
+    posts = Post.query.order_by(Post.id.desc()).all()
+    return render_template('admin/list_posts.html', posts=posts)
+
+
+@admin.route('/posts/delete/<int:post_id>/', methods=['GET'])
+@admin_only_view
+def delete_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    db.session.delete(post)
+    db.session.commit()
+    flash('Post Deleted')
+    return redirect(url_for('admin/list_posts.html'))
+
+
+@admin.route('/posts/modify/<int:post_id>/', methods=['GET', 'POST'])
+@admin_only_view
+def modify_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    form = ModifyPostForm(object=post)
+    if request.method == 'POST':
+        if not form.validate_on_submit():
+            return render_template('admin/modify.html', form=form, post=post)
+        post.title = form.title.data
+        post.content = form.content.data
+        post.slug = form.slug.data
+        post.summary = form.summary.data 
+        try:
+            db.session.commit()
+            flash('Post modified')
+        except IntegrityError:
+            db.session.rollback()
+            flash('Slug Duplicated')
+    return render_template('admin/modify.html', form=form, post=post)
+
+
+
+
+@admin.route('/categories/new/', methods=['GET', 'POST'])
+@admin_only_view
+def create_category():
+    form = CategoryForm(request.form)
+    if request.method == 'POST':
+        if not form.validate_on_submit():
+            return "1"
+        new_category = Category()
+        new_category.name = form.name.data
+        new_category.slug = form.slug.data
+        new_category.description = form.description.data
+        try:
+            db.session.add(new_category)
+            db.session.commit()
+            flash('Category created')
+            return redirect(url_for('admin.index'))
+        except IntegrityError:
+            db.session.rollback()
+            flash('Slug Duplicated')
+    return render_template('admin/create_category.html', form=form)
+
+
+@admin.route('/categories/new/', methods=['GET'])
+@admin_only_view
+def list_categories():
+    categories = Category.query.order_by(Category.id.desc()).all()
+    return render_template('admin/list_categories.html', categories=categories)
+
+
+@admin.route('/categories/delete/<int:category_id>/', methods=['GET'])
+@admin_only_view
+def delete_category(category_id):
+    category = Post.query.get_or_404(category_id)
+    db.session.delete(category)
+    db.session.commit()
+    flash('Category Deleted')
+    return redirect(url_for('admin/list_categories.html'))
+
+
+@admin.route('/categories/modify/<int:category_id>/', methods=['GET', 'POST'])
+@admin_only_view
+def modify_category(category_id):
+    category = Category.query.get_or_404(category_id)
+    form = CategoryForm(object=category)
+    if request.method == 'POST':
+        if not form.validate_on_submit():
+            return render_template('admin/modify.html', form=form, category=category)
+        category.name = form.name.data
+        category.description = form.description.data
+        category.slug = form.slug.data 
+        try:
+            db.session.commit()
+            flash('Category mofified')
+        except IntegrityError:
+            db.session.rollback()
+            flash('Slug Duplicated')
+    return render_template('admin/modify_category.html', form=form, category=category)
