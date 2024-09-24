@@ -16,10 +16,12 @@ migrate = Migrate(app, db)
 from mod_admin import admin
 from mod_users import users
 from mod_blog import blog
+from mod_uploads import uploads
 
 app.register_blueprint(admin)
 app.register_blueprint(users)
 app.register_blueprint(blog)
+app.register_blueprint(uploads)
 
 
 if __name__ == '__main__':
