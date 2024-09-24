@@ -36,5 +36,5 @@ def search_blog():
 def single_category(slug):
     search_form =SearchForm()
     category = Category.query.filter(Category.slug == slug).first_or_404()
-    return render_template('blog/index.html', posts=category.posts, search_form=search_form)
+    return render_template('blog/single_category.html', posts=category.posts, search_form=search_form, category_name=category.name)
                                                                                         
