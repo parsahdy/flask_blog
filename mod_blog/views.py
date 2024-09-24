@@ -1,7 +1,7 @@
 from flask import render_template, request
 from sqlalchemy import or_
 from . import blog
-from .models import Post
+from .models import Post, Category
 from .forms import SearchForm
 
 @blog.route('/')
@@ -30,3 +30,10 @@ def search_blog():
                                         content_cond)).all()
     print(found_posts)
     return render_template('blog/index.html', posts=found_posts, search_form=search_form)
+
+
+@blog.route('/category/<string:slug>')
+def single_category(slug):
+    search_form =SearchForm()
+    category = Category.query.filter(Category.slug == slug).first_or_404()
+    return render_template('blog/index.html', posts=category.posts, search_form=search_form)
