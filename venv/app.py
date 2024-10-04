@@ -1,16 +1,21 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy 
 from flask_migrate import Migrate
+from config import Development
+from flask_mail import Mail
+from redis import Redis
 import secrets
 
 
 app = Flask(__name__)
+app.config.from_object(Development)
 app.config['SECRET_KEY'] = secrets.token_hex(16)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://parsa_blog:parsa@localhost:3000/flask_blog'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+mail = Mail(app)
+redis = Redis.from_url(app.config['REDIS_SERVER_URL'])
 
 
 from mod_admin import admin

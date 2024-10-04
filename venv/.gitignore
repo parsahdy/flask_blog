@@ -1,0 +1,9 @@
+.vscode/
+__pycache__/
+.env
+Scripts
+Lib
+Include
+share
+etc
+docx-template
